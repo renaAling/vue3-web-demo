@@ -1,0 +1,610 @@
+<template>
+	<el-drawer v-model="visible" :title="$t('personal.name')" size="40%">
+		<el-tabs class="demo-tabs">
+			<el-tab-pane label="基本信息" v-loading="loading">
+				<el-form :model="formData" :rules="ruleForm" label-width="100px" class="mt30" ref="formdataRef" v-if="isCultural">
+					<el-form-item label="头像" prop="avatar">
+						<ImageUpload v-model:imageUrl="formData.avatar" borderRadius="50%">
+							<template #empty>
+								<el-icon>
+									<Avatar />
+								</el-icon>
+								<span>请上传头像</span>
+							</template>
+						</ImageUpload>
+					</el-form-item>
+					<el-form-item label="账号ID" prop="userId">
+						<el-input v-model="formData.userId" clearable disabled></el-input>
+					</el-form-item>
+					<el-form-item label="昵称" prop="nickname">
+						<el-input v-model="formData.nickname" placeholder="请输入昵称" maxlength="10" clearable></el-input>
+					</el-form-item>
+					<el-form-item label="手机" prop="phone">
+						<el-input v-model="formData.phone" placeholder="请输入手机" maxlength="11" clearable></el-input>
+					</el-form-item>
+					<el-form-item>
+						<el-button type="primary" @click="onSubmit(formdataRef)"> 更新个人信息 </el-button>
+					</el-form-item>
+				</el-form>
+				<el-form :model="formData" :rules="ruleForm" label-width="100px" class="mt30" ref="formdataRef" v-else>
+					<el-row :gutter="20">
+						<el-col :span="24" class="mb20">
+							<el-form-item prop="avatar">
+								<ImageUpload v-model:imageUrl="formData.avatar" borderRadius="50%">
+									<template #empty>
+										<el-icon>
+											<Avatar />
+										</el-icon>
+										<span>请上传头像</span>
+									</template>
+								</ImageUpload>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item label="用户名" prop="username">
+								<el-input v-model="formData.username" clearable disabled></el-input>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item label="手机" prop="phone">
+								<el-input v-model="formData.phone" placeholder="请输入手机" clearable></el-input>
+							</el-form-item>
+						</el-col>
+
+						<el-col :span="24" class="mb20">
+							<el-form-item label="邮箱" prop="email">
+								<el-input v-model="formData.email" placeholder="请输入邮箱" clearable></el-input>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item label="昵称" prop="nickname">
+								<el-input v-model="formData.nickname" placeholder="请输入昵称" clearable></el-input>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item label="姓名" prop="name">
+								<el-input v-model="formData.name" placeholder="请输入姓名" clearable></el-input>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item>
+								<el-button type="primary" @click="handleSaveUser"> 更新个人信息 </el-button>
+							</el-form-item>
+						</el-col>
+					</el-row>
+				</el-form>
+			</el-tab-pane>
+			<el-tab-pane label="修改密码">
+				<el-form :model="passwordFormData" :rules="passwordRuleForm" label-width="100px" class="mt30" ref="passwordFormdataRef">
+					<el-row :gutter="20">
+						<el-col :span="24" class="mb20">
+							<el-form-item label="原密码" prop="password">
+								<el-input
+									v-model="passwordFormData.password"
+									:type="showPassword ? 'text' : 'password'"
+									placeholder="请输入密码"
+									clearable
+								>
+									<template #suffix>
+										<i
+											class="iconfont el-input__icon login-content-password"
+											:class="showPassword ? 'icon-yincangmima' : 'icon-xianshimima'"
+											@click="showPassword = !showPassword"
+										>
+										</i>
+									</template>
+								</el-input>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item label="新密码" prop="newpassword1">
+								<strength-meter
+									v-model="passwordFormData.newpassword1"
+									:minlength="8"
+									placeholder="请输入新密码，密码必须至少8位，包含大小写字母、数字和特殊字符"
+									@score="passwordScore"
+								></strength-meter>
+								<!--									<el-input v-model="passwordFormData.newpassword1" clearable type="password"></el-input>-->
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item label="确认密码" prop="newpassword2">
+								<strength-meter v-model="passwordFormData.newpassword2" :minlength="8" placeholder="请重复密码"></strength-meter>
+							</el-form-item>
+						</el-col>
+						<el-col :span="24" class="mb20">
+							<el-form-item>
+								<el-button type="primary" @click="handleChangePassword"> 修改密码 </el-button>
+							</el-form-item>
+						</el-col>
+					</el-row>
+				</el-form>
+			</el-tab-pane>
+			<!-- <el-tab-pane label="第三方账号">
+				<el-table :data="socialList" class="mt10">
+					<el-table-column type="index" label="序号" width="80"></el-table-column>
+					<el-table-column prop="name" label="平台"></el-table-column>
+					<el-table-column label="状态">
+						<template #default="scope">
+							<el-tag v-if="scope.row.openId"> 已绑定 </el-tag>
+							<el-tag v-else> 未绑定 </el-tag>
+						</template>
+					</el-table-column>
+					<el-table-column prop="action" label="操作">
+						<template #default="scope">
+							<el-button @click="unbinding(scope.row.type)" text type="primary" v-if="scope.row.openId"> 解绑 </el-button>
+							<el-button @click="handleClick(scope.row.type)" text type="primary" v-else> 绑定 </el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+			</el-tab-pane> -->
+		</el-tabs>
+	</el-drawer>
+</template>
+
+<script setup lang="ts" name="personal">
+import { useUserInfo } from '/@/stores/userInfo';
+import { editInfo, getObj, password, unbindingUser } from '/@/api/admin/user';
+import { useMessage, useMessageBox } from '/@/hooks/message';
+import { rule, validateNull } from '/@/utils/validate';
+import other from '/@/utils/other';
+import { Session } from '/@/utils/storage';
+import { useI18n } from 'vue-i18n';
+import { getLoginAppList } from '/@/api/admin/social';
+import { culturalPersonalCheck } from '/@/api/culture/systemMange';
+import { validatePassword } from '/@/utils/toolsValidate';
+import { FormInstance } from 'element-plus';
+
+const { t } = useI18n();
+const baseTenantId = computed(() => import.meta.env.VITE_TENANT_ID);
+const ImageUpload = defineAsyncComponent(() => import('/@/components/Upload/Image.vue'));
+const StrengthMeter = defineAsyncComponent(() => import('/@/components/StrengthMeter/index.vue'));
+const isCultural = computed(() => (Session.getTenant() === '1815608904948617218' ? true : false));
+const visible = ref(false);
+
+// 定义变量内容
+const formData = ref({
+	userId: '',
+	username: '',
+	name: '',
+	email: '',
+	avatar: '',
+	nickname: '',
+	wxDingUserid: '',
+	wxCpUserid: '',
+	phone: '' as string | null,
+});
+
+const showPassword = ref(false);
+const passwordFormData = reactive({
+	password: '',
+	newpassword1: '',
+	newpassword2: '',
+});
+
+const formdataRef = ref();
+const passwordFormdataRef = ref();
+
+const ruleForm = reactive({
+	phone: [
+		{ required: true, message: '手机号不能为空', trigger: 'blur' },
+		{ validator: rule.validatePhone, trigger: 'blur' },
+	],
+	nickname: [{ required: true, message: '昵称不能为空', trigger: 'blur' }],
+	email: [{ required: true, message: '邮箱不能为空', trigger: 'blur' }],
+	name: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
+});
+const validatorPassword2 = (rule: any, value: any, callback: any) => {
+	if (value !== passwordFormData.newpassword1) {
+		callback(new Error(t('personal.passwordRule')));
+	} else {
+		callback();
+	}
+};
+const validatorScore = (rule: any, value: any, callback: any) => {
+	if (score.value <= 1) {
+		callback(new Error(t('personal.passwordScore')));
+	} else {
+		callback();
+	}
+};
+
+const passwordRuleForm = reactive({
+	password: [{ required: true, message: '密码不能为空', trigger: 'blur' }],
+	newpassword1: [
+		{ validator: validatePassword, trigger: 'blur'},
+		{ validator: validatorScore, trigger: 'blur' },
+	],
+	newpassword2: [
+		{ validator: validatorPassword2, trigger: 'blur' },
+	],
+});
+
+const score = ref(0);
+
+const passwordScore = (e: any) => {
+	score.value = e;
+};
+
+const onSubmit = (formEl: FormInstance | undefined) => {
+	if (!formEl) return;
+	formEl.validate(async (valid) => {
+		if (valid) {
+			try {
+				await useMessageBox().confirm(`是否更新个人信息`, '确认更新');
+			} catch {
+				return false;
+			}
+			let phone: string | null = '';
+			if (formData.value.phone && formData.value.phone.includes('*')) {
+				phone = null;
+			} else {
+				phone = formData.value.phone;
+			}
+			const params = {
+				nickname: formData.value.nickname,
+				phone: phone,
+				avatar: formData.value.avatar,
+			};
+			try {
+				const { code, msg } = await culturalPersonalCheck(params);
+				if (code === 0) {
+					const formDataParams = Object.assign({}, formData.value, { phone });
+					const { code, msg } = await editInfo(formDataParams);
+					if (code === 0) {
+						useMessage().success('更新成功');
+						useUserInfo().setUserInfos();
+					} else {
+						useMessage().error(msg);
+					}
+				} else {
+					useMessage().error(msg);
+				}
+			} catch (err: any) {
+				useMessage().error(err.msg);
+			}
+		} else {
+			return false;
+		}
+	});
+};
+
+const handleChangePassword = () => {
+	passwordFormdataRef.value.validate((valid: boolean) => {
+		if (!valid) {
+			return false;
+		}
+		if (passwordFormData.password === passwordFormData.newpassword1) {
+			return useMessage().error('新旧密码不能一致');
+		}
+		password(passwordFormData)
+			.then(() => {
+				useMessage().success('修改成功');
+				// 需要重新登录
+				// 清除缓存/token等
+				Session.clear();
+				// 使用 reload 时，不需要调用 resetRoute() 重置路由
+				window.location.reload();
+			})
+			.catch((err) => {
+				useMessage().error(err.msg);
+			});
+	});
+};
+
+// 保存用户
+const handleSaveUser = () => {
+	formdataRef.value.validate((valid: boolean) => {
+		if (!valid) {
+			return false;
+		}
+
+		if (formData.value.phone && formData.value.phone.includes('*')) {
+			formData.value.phone = null;
+		}
+
+		editInfo(formData.value)
+			.then(() => {
+				useMessage().success('修改成功');
+				// 更新上下文的 user信息
+				useUserInfo().setUserInfos();
+			})
+			.catch((err) => {
+				useMessage().error(err.msg);
+			});
+	});
+};
+
+const handleClick = async (thirdpart: string) => {
+	// 获取租户配置的账号信息
+	const { data } = await getLoginAppList();
+	const result = data.find((item: any) => item.type === thirdpart);
+	if (validateNull(result)) {
+		useMessage().error(t('scan.appErrorTip'));
+		return;
+	}
+
+	let redirect_uri, url;
+	redirect_uri = encodeURIComponent(window.location.origin + '/#/authredirect');
+
+	if (thirdpart === 'WEIXIN_CP') {
+		url = `https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=${result.appId}&agentid=${result.ext}&redirect_uri=${redirect_uri}&state=CP-BIND`;
+	}
+
+	if (thirdpart === 'DINGTALK') {
+		url = `https://login.dingtalk.com/oauth2/auth?redirect_uri=${redirect_uri}&response_type=code&client_id=${result.appId}&scope=openid&state=DINGTALK-BIND&prompt=consent`;
+	}
+
+	other.openWindow(url, thirdpart, 540, 540);
+};
+
+const open = () => {
+	visible.value = true;
+	const data = useUserInfo().userInfos;
+	initUserInfo(data.user.userId);
+	// Object.assign(formData, data.user);
+};
+
+const loading = ref(false);
+const initUserInfo = (userId: any) => {
+	loading.value = true;
+	getObj(userId)
+		.then((res) => {
+			formData.value = res.data;
+			initSocialList();
+		})
+		.catch((err) => {
+			useMessage().error(err.msg);
+		})
+		.finally(() => {
+			loading.value = false;
+		});
+};
+const socialList = ref([] as any);
+
+const initSocialList = () => {
+	socialList.value = [
+		{
+			name: '企业微信',
+			type: 'WEIXIN_CP',
+			openId: formData.value.wxCpUserid,
+		},
+		{
+			name: '钉钉办公',
+			type: 'DINGTALK',
+			openId: formData.value.wxDingUserid,
+		},
+	];
+};
+
+const unbinding = (type: string) => {
+	unbindingUser(type)
+		.then(() => {
+			useMessage().success('解绑成功');
+		})
+		.catch((err) => {
+			useMessage().error(err.msg);
+		})
+		.finally(() => {
+			initUserInfo(formData.value.userId);
+		});
+};
+
+// 暴露变量
+defineExpose({
+	open,
+});
+</script>
+
+<style scoped lang="scss">
+@use '/@/theme/mixins/index.scss' as *;
+
+.personal {
+	.personal-user {
+		height: 130px;
+		display: flex;
+		align-items: center;
+
+		.personal-user-left {
+			width: 180px;
+			height: 130px;
+			border-radius: 3px;
+
+			:deep(.el-upload) {
+				height: 100%;
+			}
+
+			.personal-user-left-upload {
+				img {
+					width: 100%;
+					height: 100%;
+					border-radius: 3px;
+				}
+
+				&:hover {
+					img {
+						animation: logoAnimation 0.3s ease-in-out;
+					}
+				}
+			}
+		}
+
+		.personal-user-right {
+			flex: 1;
+			padding: 0 15px;
+
+			.personal-title {
+				font-size: 18px;
+				@include text-ellipsis(1);
+			}
+
+			.personal-item {
+				display: flex;
+				align-items: center;
+				font-size: 13px;
+
+				.personal-item-label {
+					color: var(--el-text-color-secondary);
+					@include text-ellipsis(1);
+				}
+
+				.personal-item-value {
+					@include text-ellipsis(1);
+				}
+			}
+		}
+	}
+
+	.personal-info {
+		.personal-info-more {
+			float: right;
+			color: var(--el-text-color-secondary);
+			font-size: 13px;
+
+			&:hover {
+				color: var(--el-color-primary);
+				cursor: pointer;
+			}
+		}
+
+		.personal-info-box {
+			height: 130px;
+			overflow: hidden;
+
+			.personal-info-ul {
+				list-style: none;
+
+				.personal-info-li {
+					font-size: 13px;
+					padding-bottom: 10px;
+
+					.personal-info-li-title {
+						display: inline-block;
+						@include text-ellipsis(1);
+						color: var(--el-text-color-secondary);
+						text-decoration: none;
+					}
+
+					& a:hover {
+						color: var(--el-color-primary);
+						cursor: pointer;
+					}
+				}
+			}
+		}
+	}
+
+	.personal-recommend-row {
+		.personal-recommend-col {
+			.personal-recommend {
+				position: relative;
+				height: 100px;
+				border-radius: 3px;
+				overflow: hidden;
+				cursor: pointer;
+
+				&:hover {
+					i {
+						right: 0px !important;
+						bottom: 0px !important;
+						transition: all ease 0.3s;
+					}
+				}
+
+				i {
+					position: absolute;
+					right: -10px;
+					bottom: -10px;
+					font-size: 70px;
+					transform: rotate(-30deg);
+					transition: all ease 0.3s;
+				}
+
+				.personal-recommend-auto {
+					padding: 15px;
+					position: absolute;
+					left: 0;
+					top: 5%;
+					color: var(--next-color-white);
+
+					.personal-recommend-msg {
+						font-size: 12px;
+						margin-top: 10px;
+					}
+				}
+			}
+		}
+	}
+
+	.personal-edit {
+		.personal-edit-title {
+			position: relative;
+			padding-left: 10px;
+			color: var(--el-text-color-regular);
+
+			&::after {
+				content: '';
+				width: 2px;
+				height: 10px;
+				position: absolute;
+				left: 0;
+				top: 50%;
+				transform: translateY(-50%);
+				background: var(--el-color-primary);
+			}
+		}
+
+		.personal-edit-safe-box {
+			border-bottom: 1px solid var(--el-border-color-light, #ebeef5);
+			padding: 15px 0;
+
+			.personal-edit-safe-item {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+
+				.personal-edit-safe-item-left {
+					flex: 1;
+					overflow: hidden;
+
+					.personal-edit-safe-item-left-label {
+						color: var(--el-text-color-regular);
+						margin-bottom: 5px;
+					}
+
+					.personal-edit-safe-item-left-value {
+						color: var(--el-text-color-secondary);
+						@include text-ellipsis(1);
+						margin-right: 15px;
+					}
+				}
+			}
+
+			&:last-of-type {
+				padding-bottom: 0;
+				border-bottom: none;
+			}
+		}
+	}
+}
+
+.el-icon.avatar-uploader-icon {
+	font-size: 28px;
+	color: #8c939d;
+	width: 178px;
+	height: 178px;
+	text-align: center;
+}
+
+.avatar {
+	width: 178px;
+	height: 100%;
+}
+
+.item {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+</style>

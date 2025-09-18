@@ -1,0 +1,19 @@
+version: '3'
+services:
+  rls-ui:
+    build:
+      context: .
+    restart: always
+    container_name: rls-ui
+    image: rls-ui
+    networks:
+      - spring_cloud_default
+    external_links:
+      - rls-gateway
+    ports:
+      - 80:80
+
+# 加入到后端网络， 默认为 rls_default  | docker network ls   查看
+networks:
+  spring_cloud_default:
+    external: true

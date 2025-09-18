@@ -1,0 +1,40 @@
+.DS_Store
+node_modules
+/dist
+/dist-test-a0
+/dist-test-a1
+/dist-test-a2
+/dist-test-a3
+/dist-test-a4
+/dist-test-a5
+/dist-test-a6
+/dist-test-a7
+/dist-test-a8
+
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+.history/

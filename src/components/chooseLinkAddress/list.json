@@ -1,0 +1,41 @@
+{
+  "status": 200,
+  "msg": "ok",
+  "data": [
+    {
+      "id": 1,
+      "pid": 0,
+      "type": "business",
+      "name": "业务页面",
+      "title": "业务页面"
+    },
+    {
+      "id": 2,
+      "pid": 0,
+      "type": "wechartInternal",
+      "name": "小程序内部页",
+      "title": "小程序内部页"
+    },
+    {
+      "id": 3,
+      "pid": 0,
+      "type": "customLink",
+      "name": "自定义链接",
+      "title": "自定义链接"
+    },
+    {
+      "id": 4,
+      "pid": 0,
+      "type": "wechartOther",
+      "name": "其他小程序",
+      "title": "其他小程序"
+    },
+    {
+      "id": 5,
+      "pid": 0,
+      "type": "customPage",
+      "name": "自定义页面",
+      "title": "自定义页面"
+    }
+  ]
+}
